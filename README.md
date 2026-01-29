@@ -1,12 +1,27 @@
 # ClaudeHammer ⚡🔨
 
-**Stop babysitting Claude Code permission prompts.**
+**For knowledge workers who use Claude Code but don't want to babysit it.**
 
-Claude Code asks for permission constantly—even when you've already said "always allow." This interrupts your flow and defeats the purpose of an AI coding assistant.
+You're a researcher, analyst, writer, or other knowledge worker who uses Claude Code to get real work done. But every few minutes, Claude asks for permission to read a file, run a command, or create something—and you have to stop what you're doing to click "Yes."
 
-ClaudeHammer uses Hammerspoon to automatically click "Allow" and "Yes" buttons in your terminal. It's like having a very patient intern who just clicks "Yes" for you.
+You're not a developer. You don't want to mess with config files or learn about `--dangerously-skip-permissions`. You just want Claude to do its job while you do yours.
+
+**ClaudeHammer automatically clicks "Allow" and "Yes" so you can stay focused on your actual work.**
+
+## Why This Exists
+
+Claude Code is incredible for knowledge work—research, writing, data analysis, document processing. But its permission system assumes you're a developer who wants to approve every file read and command execution.
+
+For knowledge workers doing agentic tasks (let Claude research this, summarize that, organize these files), stopping every 30 seconds to click "Allow" is:
+- **Expensive** - your time costs money
+- **Flow-breaking** - context switching kills productivity
+- **Pointless** - you were going to click Yes anyway
+
+ClaudeHammer runs quietly in your menubar and clicks those buttons for you.
 
 ## Safety First
+
+ClaudeHammer is paranoid about safety. It will auto-click routine permissions but **never** dangerous actions:
 
 | ✅ Auto-clicks | ❌ Never clicks |
 |---------------|-----------------|
@@ -19,42 +34,50 @@ ClaudeHammer uses Hammerspoon to automatically click "Allow" and "Yes" buttons i
 | Accept | Share |
 
 - **Full audit log** of every click at `~/.hammerspoon/claude-auto-allow.log`
-- **One-click pause** from menubar
+- **One-click pause** from menubar whenever you want manual control
 - **Hardcoded blocklist** prevents dangerous clicks even if misconfigured
-- **Open source** - inspect the code yourself
+- **Open source** - have a developer friend inspect it if you're cautious
 
 ## Quick Install
 
+You'll need Homebrew (the Mac package manager). If you don't have it:
 ```bash
-# Requires Homebrew
-brew install --cask hammerspoon
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-# Install ClaudeHammer
+Then install ClaudeHammer:
+```bash
+brew install --cask hammerspoon
 curl -sL https://raw.githubusercontent.com/mattbeane/claudehammer/main/install.sh | bash
 ```
-
-## Manual Install
-
-1. [Download the latest release](https://github.com/mattbeane/claudehammer/releases)
-2. Double-click `ClaudeAutoAllow.spoon.zip` to extract
-3. Double-click `ClaudeAutoAllow.spoon` to install
-4. Add to `~/.hammerspoon/init.lua`:
-
-```lua
-hs.loadSpoon("ClaudeAutoAllow"):start()
-```
-
-5. Reload Hammerspoon (click menubar icon → Reload Config)
 
 ## After Install
 
 1. **Grant Accessibility permissions** when prompted
    - System Settings → Privacy & Security → Accessibility → Enable Hammerspoon
-2. Look for **⚡** in your menubar (active) or **⏸** (paused)
-3. Start using Claude Code!
+   - (This is how ClaudeHammer clicks buttons for you)
+2. Look for **⚡** in your menubar - that means it's active
+3. Start using Claude Code - permissions will auto-approve!
 
-## Supported Terminals
+## Using ClaudeHammer
 
+Once installed, just forget about it. ClaudeHammer runs quietly and clicks permission prompts automatically.
+
+**Menubar icon meanings:**
+- ⚡ = Active (auto-clicking)
+- ⏸ = Paused (you're clicking manually)
+
+**Click the icon to:**
+- Pause/resume auto-clicking
+- See what it's clicked recently
+- View the full audit log
+- Adjust settings
+
+**Keyboard shortcut:** Press `Cmd+Shift+A` to toggle on/off
+
+## Supported Terminal Apps
+
+ClaudeHammer works with however you run Claude Code:
 - Terminal.app ✓
 - iTerm2 ✓
 - Warp ✓
@@ -63,91 +86,52 @@ hs.loadSpoon("ClaudeAutoAllow"):start()
 - Ghostty ✓
 - WezTerm ✓
 - Hyper ✓
-- Rio ✓
-- Tabby ✓
-
-## Configuration
-
-```lua
--- Basic usage
-hs.loadSpoon("ClaudeAutoAllow"):start()
-
--- Add a toggle hotkey
-spoon.ClaudeAutoAllow:bindHotkeys({
-    toggle = {{"cmd", "shift"}, "A"}
-})
-
--- Disable sound (already off by default)
-spoon.ClaudeAutoAllow.config.soundEnabled = false
-
--- Disable on-screen alerts
-spoon.ClaudeAutoAllow.config.alertEnabled = false
-
--- Add a custom button to the allowlist
-spoon.ClaudeAutoAllow:addAllowedButton("My Custom Button")
-
--- Only monitor specific terminals
-spoon.ClaudeAutoAllow:setTargetApps({"iTerm2", "Terminal"})
-```
-
-## Menubar
-
-Click the **⚡** icon to:
-- Toggle on/off
-- View recent auto-clicks
-- See click statistics
-- Open the audit log
-- Adjust settings
 
 ## FAQ
 
 **Q: Is this safe?**
-A: Yes. The hardcoded blocklist prevents clicking anything destructive (Delete, Purchase, Send, etc.) even if you misconfigure it. Every click is logged.
+A: Yes. The hardcoded blocklist prevents clicking anything destructive (Delete, Purchase, Send, etc.) even if you misconfigure it. Every click is logged so you can review what happened.
 
-**Q: Why not just use `--dangerously-skip-permissions`?**
-A: That flag is all-or-nothing and doesn't work in the Claude desktop app. This gives you auto-approve UX with per-action logging.
+**Q: What if I want to say "No" to something?**
+A: Click the ⚡ icon and select "Disable" to pause auto-clicking. Or press `Cmd+Shift+A`. Then you're back to manual approval.
 
-**Q: Will this click on things outside Claude Code?**
-A: No. It only operates on configured terminal apps, only on buttons in the allowlist.
+**Q: I'm not technical. Will this break my computer?**
+A: No. ClaudeHammer only interacts with permission dialogs in your terminal app. It can't affect anything else on your system.
 
-**Q: Can I add my own buttons to auto-click?**
-A: Yes, use `:addAllowedButton("Button Text")`. The blocklist still applies.
+**Q: How do I know what it clicked?**
+A: Click the menubar icon → "View Audit Log" to see every action with timestamps.
 
-**Q: How do I audit what it clicked?**
-A: Click the menubar icon → View Audit Log, or open `~/.hammerspoon/claude-auto-allow.log`
+**Q: What if Claude asks for something dangerous?**
+A: ClaudeHammer won't click it. Buttons containing words like "Delete", "Purchase", "Send", or "Remove" are permanently blocked. You'll need to click those manually (which is the point—those deserve your attention).
 
 ## Troubleshooting
 
 ### "Hammerspoon needs Accessibility permissions"
 
-1. System Settings → Privacy & Security → Accessibility
-2. Click the + button
-3. Add Hammerspoon from Applications
-4. Ensure the checkbox is enabled
-5. Reload Hammerspoon
+1. Open System Settings
+2. Go to Privacy & Security → Accessibility
+3. Click the + button
+4. Find and add Hammerspoon from your Applications folder
+5. Make sure the checkbox next to it is enabled
+6. Click the Hammerspoon menubar icon → Reload Config
 
-### Not clicking buttons
+### Not auto-clicking
 
-1. Check that your terminal is in the target list (see Configuration)
-2. Ensure the button text matches the allowlist exactly
-3. Check the Hammerspoon console for errors (menubar icon → Console)
+1. Make sure you see ⚡ in your menubar (not ⏸)
+2. Click the menubar icon → check that it says "✓ Enabled"
+3. If problems persist, click the Hammerspoon icon → Console to see error messages
 
-### Clicking too slowly
-
-The default poll interval is 1.5 seconds. For faster response:
-
-```lua
-spoon.ClaudeAutoAllow.config.pollIntervalSec = 0.5
-```
-
-## Development
+## Uninstall
 
 ```bash
-# Clone to Spoons directory
-cd ~/.hammerspoon/Spoons
-git clone https://github.com/mattbeane/claudehammer.git ClaudeAutoAllow.spoon
+# Remove the spoon
+rm -rf ~/.hammerspoon/Spoons/ClaudeAutoAllow.spoon
 
-# Edit files and reload Hammerspoon to test
+# Remove from config (edit this file and delete the ClaudeHammer lines)
+open ~/.hammerspoon/init.lua
+
+# Optionally remove Hammerspoon entirely
+brew uninstall --cask hammerspoon
 ```
 
 ## License
@@ -156,6 +140,6 @@ MIT - Use at your own risk, but it's probably fine.
 
 ## Credits
 
-Built by [Matt Beane](https://github.com/mattbeane) with Claude.
+Built by [Matt Beane](https://github.com/mattbeane) (a researcher, not a developer) with Claude.
 
-Inspired by everyone who's ever clicked "Yes" 47 times in one Claude Code session.
+Inspired by the realization that clicking "Yes" 50 times per hour is not a good use of anyone's time.
