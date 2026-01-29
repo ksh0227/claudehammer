@@ -8,8 +8,9 @@ M.DEFAULTS = {
     -- Core functionality
     enabled = true,
 
-    -- Target applications (terminal emulators)
+    -- Target applications (terminal emulators + Claude desktop app)
     targetApps = {
+        "Claude",
         "Terminal",
         "iTerm2",
         "iTerm",
@@ -25,7 +26,7 @@ M.DEFAULTS = {
 
     -- Timing
     debounceMs = 300,           -- Minimum ms between clicks
-    pollIntervalSec = 1.5,      -- Backup polling interval
+    pollIntervalSec = 0.5,      -- Backup polling interval
     uiRenderDelayMs = 100,      -- Wait for UI to render after event
 
     -- Feedback
@@ -47,7 +48,7 @@ M.DEFAULTS = {
     strictMode = false,         -- If true, require context validation
 
     -- Advanced
-    maxSearchDepth = 4,         -- How deep to search UI tree
+    maxSearchDepth = 15,         -- How deep to search UI tree
 }
 
 -- Settings key for persistence

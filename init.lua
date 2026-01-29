@@ -37,8 +37,8 @@ obj.config = nil
 obj.stats = nil
 obj.hotkey = nil
 
--- Logger
-obj.logger = hs.logger.new("ClaudeAutoAllow", "info")
+-- Logger (debug level to see button detection)
+obj.logger = hs.logger.new("ClaudeAutoAllow", "debug")
 
 -- Load submodules (relative to spoon path)
 local safety, configMod, ui, core
