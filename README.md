@@ -17,7 +17,7 @@ For knowledge workers doing agentic tasks (let Claude research this, summarize t
 - **Flow-breaking** - context switching kills productivity
 - **Pointless** - you were going to click Yes anyway
 
-ClaudeHammer runs quietly in your menubar and clicks those buttons for you.
+ClaudeHammer runs quietly in your menubar and confirms those prompts for you (using Cmd+Return, the same keyboard shortcut you'd use manually).
 
 ## Safety First
 
@@ -75,9 +75,10 @@ Once installed, just forget about it. ClaudeHammer runs quietly and clicks permi
 
 **Keyboard shortcut:** Press `Cmd+Shift+A` to toggle on/off
 
-## Supported Terminal Apps
+## Supported Apps
 
-ClaudeHammer works with however you run Claude Code:
+ClaudeHammer works with the Claude desktop app and terminal emulators:
+- **Claude desktop app** ✓ (recommended)
 - Terminal.app ✓
 - iTerm2 ✓
 - Warp ✓
@@ -96,7 +97,7 @@ A: Yes. The hardcoded blocklist prevents clicking anything destructive (Delete, 
 A: Click the ⚡ icon and select "Disable" to pause auto-clicking. Or press `Cmd+Shift+A`. Then you're back to manual approval.
 
 **Q: I'm not technical. Will this break my computer?**
-A: No. ClaudeHammer only interacts with permission dialogs in your terminal app. It can't affect anything else on your system.
+A: No. ClaudeHammer only interacts with permission dialogs in Claude (desktop or terminal). It can't affect anything else on your system.
 
 **Q: How do I know what it clicked?**
 A: Click the menubar icon → "View Audit Log" to see every action with timestamps.
