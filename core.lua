@@ -17,6 +17,8 @@ end
 M.spoon = nil
 M.windowFilter = nil
 M.pollTimer = nil
+M.backgroundTimer = nil
+M.backgroundSearching = false  -- Prevent stacking async searches
 M.appWatcher = nil
 M.lastClickTime = 0
 M.lastButtonCount = 0
@@ -331,6 +333,9 @@ local function scanAndClickButtons(win)
         findButtons(axWin, 0)
     end)
 
+    -- Debug: log button count for background scans
+    debugLog("Scan found " .. #buttons .. " buttons")
+
     -- STRATEGY: Look for "Allow" button text directly rather than counting buttons.
     -- The permission dialog has a button with title "Allow once ⌘ ⏎" or similar.
     local foundAllowButton = nil
@@ -421,7 +426,7 @@ function M.setupWatchers()
         end)
     end)
 
-    -- Backup polling (catches dialogs that don't trigger events)
+    -- Backup polling for focused window (fast, reliable)
     local pollInterval = config.pollIntervalSec or 0.5
     local log = M.spoon and M.spoon.logger
     if log then log.i("Setting up poll timer with interval: " .. pollInterval) end
@@ -439,6 +444,55 @@ function M.setupWatchers()
             end
             scanAndClickButtons(focusedWin)
         end
+    end)
+
+    -- BACKGROUND POLLING: Check Claude windows even when not focused
+    -- Strategy: Briefly focus Claude to expose accessibility tree, scan, then restore previous app
+    M.backgroundTimer = hs.timer.doEvery(2.0, function()
+        if not M.spoon or not M.spoon.enabled then return end
+        if M.backgroundSearching then return end  -- Don't stack searches
+
+        local claudeApp = hs.application.get("Claude")
+        if not claudeApp then return end
+
+        -- Skip if Claude is already focused (main poll handles it)
+        local frontApp = hs.application.frontmostApplication()
+        if frontApp and frontApp:name() == "Claude" then return end
+
+        local wins = claudeApp:allWindows()
+        if #wins == 0 then return end
+
+        M.backgroundSearching = true
+        debugLog("Background: Brief focus steal starting")
+
+        -- Remember current app to restore later
+        local previousApp = frontApp
+
+        -- Briefly activate Claude to expose accessibility tree
+        claudeApp:activate()
+
+        -- Give Electron more time to expose webview accessibility tree
+        hs.timer.doAfter(0.6, function()
+            debugLog("Background: Claude activated, scanning...")
+
+            -- Re-fetch windows AFTER activation (important!)
+            local freshWins = claudeApp:allWindows()
+            debugLog("Background: Found " .. #freshWins .. " windows after activation")
+
+            -- Scan all Claude windows
+            for i, win in ipairs(freshWins) do
+                scanAndClickButtons(win)
+            end
+
+            -- Restore previous app after a brief delay
+            hs.timer.doAfter(0.15, function()
+                if previousApp then
+                    debugLog("Background: Restoring " .. previousApp:name())
+                    previousApp:activate()
+                end
+                M.backgroundSearching = false
+            end)
+        end)
     end)
 
     -- Watch for app launches to catch new terminal instances
@@ -468,6 +522,11 @@ function M.cleanup()
     if M.pollTimer then
         M.pollTimer:stop()
         M.pollTimer = nil
+    end
+
+    if M.backgroundTimer then
+        M.backgroundTimer:stop()
+        M.backgroundTimer = nil
     end
 
     if M.appWatcher then
